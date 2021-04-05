@@ -46,6 +46,9 @@
                                                 <constraint firstAttribute="height" constant="60" id="8Sz-QG-Sdw"/>
                                                 <constraint firstAttribute="width" constant="60" id="MKB-AA-UWs"/>
                                             </constraints>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="20"/>
+                                            </userDefinedRuntimeAttributes>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="company name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OsH-wS-dBU">
                                             <rect key="frame" x="71" y="3" width="190" height="24"/>
@@ -143,7 +146,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="saveCell" rowHeight="64" id="Lnt-G3-TMT">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="saveCell" rowHeight="64" id="Lnt-G3-TMT" customClass="SaveCell" customModule="InfoStock" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="375" height="64"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Lnt-G3-TMT" id="9gp-zM-QIg">
@@ -161,6 +164,9 @@
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="price change" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x0H-er-y5S">
                                             <rect key="frame" x="284" y="38" width="86" height="15"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="86" id="gBH-Xf-VGd"/>
+                                            </constraints>
                                             <fontDescription key="fontDescription" name="ZapfDingbatsITC" family="Zapf Dingbats" pointSize="15"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
@@ -185,6 +191,7 @@
                                     <constraints>
                                         <constraint firstAttribute="bottom" secondItem="WaM-sh-Rrs" secondAttribute="bottom" constant="11" id="6NI-Cn-fzh"/>
                                         <constraint firstItem="2t2-Ij-ZpT" firstAttribute="leading" secondItem="9gp-zM-QIg" secondAttribute="leading" constant="16" id="9ve-kL-WKP"/>
+                                        <constraint firstItem="WaM-sh-Rrs" firstAttribute="top" secondItem="2t2-Ij-ZpT" secondAttribute="bottom" constant="11" id="Ju8-C2-hPS"/>
                                         <constraint firstAttribute="bottom" secondItem="x0H-er-y5S" secondAttribute="bottom" constant="11" id="NOu-UW-Uz4"/>
                                         <constraint firstItem="WaM-sh-Rrs" firstAttribute="leading" secondItem="9gp-zM-QIg" secondAttribute="leading" constant="16" id="Rol-Lg-ejb"/>
                                         <constraint firstAttribute="trailing" secondItem="QWs-Lx-uSg" secondAttribute="trailing" constant="16" id="X1N-E8-bun"/>
@@ -195,6 +202,12 @@
                                         <constraint firstItem="QWs-Lx-uSg" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="2t2-Ij-ZpT" secondAttribute="trailing" constant="8" symbolic="YES" id="zrI-yn-Uel"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="companyNameLable" destination="2t2-Ij-ZpT" id="yNv-zQ-PTT"/>
+                                    <outlet property="costLable" destination="QWs-Lx-uSg" id="Mu5-96-EAu"/>
+                                    <outlet property="priceLable" destination="x0H-er-y5S" id="cHl-eN-9oR"/>
+                                    <outlet property="ticketNameLable" destination="WaM-sh-Rrs" id="tXB-3g-RsA"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -212,7 +225,7 @@
         <scene sceneID="49f-p6-ecw">
             <objects>
                 <navigationController id="9p5-AH-L0D" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" systemItem="downloads" id="BQ7-vB-W7L"/>
+                    <tabBarItem key="tabBarItem" systemItem="favorites" id="BQ7-vB-W7L"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="awI-Pm-slP">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>

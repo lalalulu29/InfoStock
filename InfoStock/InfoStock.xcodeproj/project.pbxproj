@@ -11,6 +11,7 @@
 		ED7851042611FB7B00E2A48F /* Company Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7851032611FB7B00E2A48F /* Company Profile.swift */; };
 		ED78510826125EEC00E2A48F /* SaveTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED78510726125EEC00E2A48F /* SaveTableView.swift */; };
 		ED78510C26125FF200E2A48F /* saveInMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED78510B26125FF200E2A48F /* saveInMemory.swift */; };
+		ED8EF4C42619FD1C00F80AE5 /* SaveCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8EF4C32619FD1C00F80AE5 /* SaveCell.swift */; };
 		EDA0210C2610BC7400FCFD45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA0210B2610BC7400FCFD45 /* AppDelegate.swift */; };
 		EDA0210E2610BC7400FCFD45 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA0210D2610BC7400FCFD45 /* SceneDelegate.swift */; };
 		EDA021132610BC7400FCFD45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EDA021112610BC7400FCFD45 /* Main.storyboard */; };
@@ -30,6 +31,7 @@
 		ED7851032611FB7B00E2A48F /* Company Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Company Profile.swift"; sourceTree = "<group>"; };
 		ED78510726125EEC00E2A48F /* SaveTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveTableView.swift; sourceTree = "<group>"; };
 		ED78510B26125FF200E2A48F /* saveInMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = saveInMemory.swift; sourceTree = "<group>"; };
+		ED8EF4C32619FD1C00F80AE5 /* SaveCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCell.swift; sourceTree = "<group>"; };
 		EDA021082610BC7400FCFD45 /* InfoStock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InfoStock.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDA0210B2610BC7400FCFD45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDA0210D2610BC7400FCFD45 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 				EDDADC742610CEBB00110B7C /* SearchTableViewController.swift */,
 				EDDADC7E2610DF0900110B7C /* SearchCell.swift */,
 				ED78510726125EEC00E2A48F /* SaveTableView.swift */,
+				ED8EF4C32619FD1C00F80AE5 /* SaveCell.swift */,
 			);
 			path = "Views Controllers";
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 			files = (
 				ED78510C26125FF200E2A48F /* saveInMemory.swift in Sources */,
 				EDDADC7C2610CF6400110B7C /* Network.swift in Sources */,
+				ED8EF4C42619FD1C00F80AE5 /* SaveCell.swift in Sources */,
 				EDDADC832610F15700110B7C /* SymbolLookup.swift in Sources */,
 				EDDADC7F2610DF0900110B7C /* SearchCell.swift in Sources */,
 				EDA0210C2610BC7400FCFD45 /* AppDelegate.swift in Sources */,

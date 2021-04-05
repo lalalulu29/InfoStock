@@ -12,4 +12,5 @@ struct supportStact {
     let companyNameLabel: String
     let costLabel: String
     let priceChangeLabel: String
+    let imageData: Data
 }

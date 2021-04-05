@@ -11,14 +11,18 @@ import CoreData
 
 
 var infoAboutCompanyList = [SymbolLookup]()
+let network = Network()
+
 
 var allInfo = [Int: supportStact]()
-class SearchTableViewController: UITableViewController, UISearchBarDelegate {
+class SearchTableViewController: UITableViewController {
 
-    var company: [JiNode] = []
-    var priceNow: [JiNode] = []
-    var priceR: [JiNode] = []
-    let network = Network()
+    var company: Array<JiNode>.SubSequence = []
+    var priceNow: Array<JiNode>.SubSequence = []
+    var priceR: Array<JiNode>.SubSequence = []
+    var imageData:[String: Data] = [:]
+    
+    private var timer: Timer?
     
     let search = UISearchController(searchResultsController: nil)
     
@@ -34,16 +38,23 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
         super.viewDidLoad()
         GenerationSearchController()
 
-        (self.company, self.priceNow, self.priceR) = self.network.parsInfoAboutStockCompany()
-        
-
-        
+        (self.company, self.priceNow, self.priceR) = network.parsInfoAboutStockCompany()
+        for elementInCompany in company {
+            let element = String(describing: elementInCompany).replacingOccurrences(of: "&amp;", with: "&")
+            
+            network.infoAboutCompany(companyName: element, tableView: tableView)
+            
+            
+            
+            
+        }
     }
-
+        
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return priceNow.count
+        
+        return company.count
     }
 
     
@@ -51,34 +62,24 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell", for: indexPath) as! SearchCell
         cell.activityIndicator.startAnimating()
-        let element = String(describing: company[indexPath.row]).replacingOccurrences(of: "&amp;", with: "&")
+        
         if indexPath.row % 2 == 0 {
             cell.backgroundColor = .lightGray
             
         } else {
             cell.backgroundColor = .gray
         }
+        let element = String(describing: company[indexPath.row]).replacingOccurrences(of: "&amp;", with: "&")
+
+
+        cell.companyNameLabel.text = "\(element)"
         
-        
-        cell.companyNameLabel.text = element
-        network.infoAboutCompany(companyName: element, tableView: tableView) { (str) in
-            DispatchQueue.main.sync {
-                cell.ticketNameLabel.text = str[element]
-            }
+        if rezultation[element] != nil {
+            cell.ticketNameLabel.text = "\(rezultation[element]!)"
+        } else {
+            cell.ticketNameLabel.text = "loading..."
         }
-        let tick = cell.ticketNameLabel.text ?? ""
-        network.getInameURL(ticker: tick, tableView: tableView) { (str) in
-            DispatchQueue.global().async {
-                guard let url = URL(string: str[tick]!) else {return}
-                guard let data = try? Data(contentsOf: url) else {return}
-                DispatchQueue.main.async {
-                    cell.activityIndicator.stopAnimating()
-                    cell.activityIndicator.isHidden = true
-                    cell.imageCompany.image = UIImage(data: data)
-                }
-                
-            }
-        }
+
         cell.costLabel.text = "\(priceNow[indexPath.row]) $"
         cell.priceChangeLabel.text = "\(priceR[indexPath.row]) $"
         if String(describing: priceR[indexPath.row]).prefix(1) == "+" {
@@ -87,11 +88,33 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
             cell.priceChangeLabel.textColor = .red
         }
 
+        DispatchQueue.global().async {
+            
+            guard let imageUrlString = rezultation[element] else {return}
+            guard let url = imageList[imageUrlString] else {return}
+            guard let normalUrl = URL(string: url) else {return}
+            guard let dataImage = try? Data(contentsOf: normalUrl) else {return}
+            self.imageData[element] = dataImage
+            DispatchQueue.main.async {
+                cell.activityIndicator.stopAnimating()
+                cell.activityIndicator.isHidden = true
+                
+                cell.imageCompany.image = UIImage(data: self.imageData[element]!)
+                
+                
+                
+            }
+        }
         
-        allInfo[indexPath.row] = supportStact(ticketNameLabel: tick,
+        
+        allInfo[indexPath.row] = supportStact(ticketNameLabel: cell.ticketNameLabel.text!,
                                      companyNameLabel: element,
                                      costLabel: cell.costLabel.text!,
-                                     priceChangeLabel: cell.priceChangeLabel.text!)
+                                     priceChangeLabel: cell.priceChangeLabel.text!,
+                                     imageData: self.imageData[element] ?? Data())
+        
+//        print(allInfo[indexPath.row])
+        
         return cell
     }
     
@@ -99,12 +122,31 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
     
     override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let saveInFavorite = UIContextualAction(style: .normal, title: "SAVE") { (_, _, _) in
+        let saveInFavorite = UIContextualAction(style: .normal, title: "SAVE") { (a, b, c) in
+            
+            
+            
             let index = indexPath.row
             let element = allInfo[index]
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let context = appDelegate.persistentContainer.viewContext
+            
+            
+            let featch: NSFetchRequest<Stock> = Stock.fetchRequest()
+            
+            
+            if let result = try? context.fetch(featch) {
+                for res in result {
+                    if res.companyName != element?.companyNameLabel {
+                        continue
+                    }
+                    self.present(self.makeAlertController(text: "Element was added before"), animated: true)
+                    
+                    return
+                }
+            }
+            
             
             guard let entity = NSEntityDescription.entity(forEntityName: "Stock", in: context) else {return}
 
@@ -113,19 +155,27 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
             obj.companyName = element?.companyNameLabel
             obj.id = 0
             obj.ticketName = element?.ticketNameLabel
+            obj.price = element?.priceChangeLabel
+            obj.cost = element?.costLabel
             
             do {
                 try context.save()
-                print("element was add")
+                self.present(self.makeAlertController(text: "Element was saved"), animated: true)
             } catch {
                 print (error)
             }
         }
+        saveInFavorite.backgroundColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
+        
         return UISwipeActionsConfiguration(actions: [saveInFavorite])
     }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
         let deleteInFavorite = UIContextualAction(style: .destructive, title: "DELETE") { (_, _, _) in
+            
+            var flag = false
+            
             let index = indexPath.row
             let element = allInfo[index]
             
@@ -133,23 +183,42 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
             let context = appDelegate.persistentContainer.viewContext
             
             let featch: NSFetchRequest<Stock> = Stock.fetchRequest()
+            
             if let result = try? context.fetch(featch) {
+                
                 for object in result {
                     if object.ticketName == element?.ticketNameLabel {
                         do {
                             context.delete(object)
                             try context.save()
-                            print("element was deleted")
+                            flag = true
+                            self.present(self.makeAlertController(text: "Element was deleted"), animated: true)
                             return
-                        } catch {}
+                        } catch {
+                            
+                        }
                     }
+                    
                 }
             }
+            
+            if !flag {
+                self.present(self.makeAlertController(text: "Element wasn't found"), animated: true)
+            }
+            
             
         }
         return UISwipeActionsConfiguration(actions: [deleteInFavorite])
     }
     
+    
+    func makeAlertController(text: String) -> UIAlertController {
+        let alertController = UIAlertController(title: "Info", message: text, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        
+        return alertController
+    }
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -197,10 +266,39 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
 
 }
 
-
-extension SearchTableViewController {
+var needElements = [String]()
+extension SearchTableViewController: UISearchBarDelegate {
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { [weak self] (_) in
+            let search = searchText
+            if search.count == 0 {
+                needElements = []
+            }
+            
+            for element in self!.company {
+                print(search.count)
+                let normalElement = String(describing: element).replacingOccurrences(of: "&amp;", with: "&")
+                guard let normalSearch = searchElement(element: normalElement, text: search) else {return}
+                needElements.append(normalSearch)
+                
+                
+            }
+
+            print(needElements)
+            
+            
+            
+        })
+        }
+}
+
+func searchElement(element: String, text: String) -> String?{
+    if element.prefix(text.count + 1) == text {
+        return element
+    } else {
+        return nil
     }
+    
 }

@@ -8,7 +8,7 @@
 import Foundation
 import Ji
 
-var rez = [String: String]()
+var rezultation = [String: String]()
 var imageList = [String: String]()
 class Network {
     let token = "c1gf6qf48v6p69n8uvr0"
@@ -16,7 +16,9 @@ class Network {
     
     
     //MARK: - Here I'm pars info about company
-    func parsInfoAboutStockCompany() -> ([JiNode],[JiNode],[JiNode]) {
+    func parsInfoAboutStockCompany() -> (Array<JiNode>.SubSequence,
+                                         Array<JiNode>.SubSequence,
+                                         Array<JiNode>.SubSequence) {
         
         let link = "https://ru.investing.com/equities/StocksFilter?noconstruct=1&smlID=800&sid=&tabletype=price&index_id=166"
         
@@ -31,11 +33,12 @@ class Network {
         print(priceR)
         
         
-        return (jiInfo, priceNow, priceR)
+        return (jiInfo[0..<20], priceNow[0..<20], priceR[0..<20])
     }
     
     //MARK: - API request about company
-    func infoAboutCompany(companyName: String, tableView: UITableView, col: @escaping ([String: String])->()) {
+    func infoAboutCompany(companyName: String, tableView: UITableView) {
+        var json: SymbolLookup!
         let normalCompanyName = companyName.replacingOccurrences(of: " ", with: "")
         let searchURL = "\(apiURL)/search?q=\(normalCompanyName)&token=\(token)"
         
@@ -46,19 +49,24 @@ class Network {
             guard let data = data else {return}
             
             do {
-                guard let json = try JSONDecoder().decode(SymbolLookup.self, from: data).result.first?.displaySymbol else {return}
-                rez[companyName] = json
-                col(rez)
+                json = try JSONDecoder().decode(SymbolLookup.self, from: data)
+                
+                guard let needValue = json.result.first else {return}
+                rezultation[companyName] = needValue.symbol
+//                print(rezultation[companyName])
+                
+                self.getInameURL(ticker: rezultation[companyName]!)
                 DispatchQueue.main.async {
                     tableView.reloadData()
                 }
-            }  catch {
-                
-            }
+                           
+            }  catch {}
+            
         }.resume()
-    
+
+
     }
-    func getInameURL(ticker: String, tableView: UITableView, imageLink: @escaping ([String:String])->()) {
+    func getInameURL(ticker: String) {
         let searchURL = "\(apiURL)/stock/profile2?symbol=\(ticker)&token=\(token)"
         guard let url = URL(string: searchURL) else {return}
         
@@ -69,10 +77,6 @@ class Network {
             do {
                 let json = try JSONDecoder().decode(CompanyProfile.self, from: data).logo
                 imageList[ticker] = json
-                imageLink(imageList)
-                DispatchQueue.main.async {
-                    tableView.reloadData()
-                }
             }  catch {
                 
             }

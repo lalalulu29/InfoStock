@@ -7,10 +7,23 @@
 
 import UIKit
 import CoreData
+import Ji
 
 
-class SaveTableView: UITableViewController {
-
+class SaveTableView: UITableViewController, UISearchBarDelegate{
+    
+    let search = UISearchController(searchResultsController: nil)
+    private func GenerationSearchController() {
+        navigationItem.searchController = search
+        search.searchBar.delegate = self
+        search.searchBar.searchTextField.placeholder = "Search stock"
+    }
+    
+    var saveCompany: Array<JiNode>.SubSequence = []
+    var savePriceNow: Array<JiNode>.SubSequence = []
+    var savePriceR: Array<JiNode>.SubSequence = []
+    
+    
     var saveInfo = [Stock]()
     func getInfoFromMemory() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -31,13 +44,22 @@ class SaveTableView: UITableViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        GenerationSearchController()
+        
         getInfoFromMemory()
+        
+        (self.saveCompany, self.savePriceNow, self.savePriceR) = network.parsInfoAboutStockCompany()
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         getInfoFromMemory()
+        
+        
+        
+        
+        
     }
 
     // MARK: - Table view data source
@@ -51,14 +73,77 @@ class SaveTableView: UITableViewController {
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "saveCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "saveCell", for: indexPath) as! SaveCell
 
-        cell.textLabel!.text = saveInfo[indexPath.row].companyName
+        if indexPath.row % 2 == 0 {
+            cell.backgroundColor = .lightGray
+            
+        } else {
+            cell.backgroundColor = .gray
+        }
+        
+        let element = saveInfo[indexPath.row]
+        cell.companyNameLable.text = element.companyName
+        cell.ticketNameLable.text = element.ticketName
+        cell.costLable.text = element.cost
+        cell.priceLable.text = element.price
+        
+        
+        
+        for (index, companyInSaveList) in saveCompany.enumerated() {
+            let elementInCompanyList = String(describing: companyInSaveList).replacingOccurrences(of: "&amp;", with: "&")
+            if elementInCompanyList == element.companyName {
+                
+                cell.costLable.text = "\(savePriceNow[index]) $"
+                cell.priceLable.text = "\(savePriceR[index]) $"
+
+                
+            }
+        }
+        
+        if cell.priceLable.text!.prefix(1) == "+" {
+            cell.priceLable.textColor = .green
+        } else {
+            cell.priceLable.textColor = .red
+        }
+        
 
         return cell
     }
 
 
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let delete = UIContextualAction(style: .destructive, title: "DELETE") { (_, _, _) in
+            let companyName = self.saveInfo[indexPath.row].companyName
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context = appDelegate.persistentContainer.viewContext
+            let featch: NSFetchRequest<Stock> = Stock.fetchRequest()
+            
+            if let result = try? context.fetch(featch) {
+                
+                for object in result {
+                    if object.companyName == companyName {
+                            context.delete(object)
+
+                    }
+                    
+                }
+                
+            }
+            do {
+                try context.save()
+                self.saveInfo.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+            } catch {
+                
+            }
+            
+            
+        }
+        
+        return UISwipeActionsConfiguration(actions: [delete])
+    }
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
